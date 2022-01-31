@@ -28,7 +28,7 @@ public class ESKafkaConsumer {
     /**  Logger. */
     public static final Logger logger = LoggerFactory.getLogger(ESKafkaConsumer.class);
 
-    /** Get Kafka consumer properties from resources and environmetn. */
+    /** Get Kafka consumer properties from resources and environment. */
     public static Properties getKafkaConsumerProperties() {
 
         String consumerProperties = "consumer.properties";
