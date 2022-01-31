@@ -7,4 +7,4 @@ COPY app /opt/app
 
 RUN mvn -f /opt/app/pom.xml clean package
 
-CMD java -cp /opt/app/target/app-1.0.jar com.github.uladzmi.tkp.TwitterKafkaProducer
+CMD java -cp /opt/app/target/twitter-kafka-producer-1.0.jar com.github.uladzmi.tkp.TwitterKafkaProducer

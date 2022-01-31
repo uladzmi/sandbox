@@ -14,9 +14,6 @@ public class FilteredStreamRule {
 
     @Override
     public String toString() {
-        return "FilteredStreamRule{" +
-                "tag='" + tag + '\'' +
-                ", value='" + value + '\'' +
-                '}';
+        return "FilteredStreamRule{" + "tag='" + tag + '\'' + ", value='" + value + '\'' +'}';
     }
 }

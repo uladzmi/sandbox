@@ -17,6 +17,7 @@ public class TKPListener implements IAPIEventListener {
     public final KafkaProducer<String, String> kafkaProducer;
     public final String topicName;
 
+    /** Twitter Kafka Producer listener. */
     public TKPListener(KafkaProducer<String, String> kafkaProducer, String topicName) {
         this.kafkaProducer = kafkaProducer;
         this.topicName = topicName;
@@ -27,6 +28,7 @@ public class TKPListener implements IAPIEventListener {
         logger.error("StreamError " + i + ": " + s);
     }
 
+    /** Forward tweets to Kafka. */
     public void onTweetStreamed(Tweet tweet) {
         JsonNode tweetJson = TwitterClient.OBJECT_MAPPER.convertValue(tweet, new TypeReference<JsonNode>() {});
         ProducerRecord<String, String> record = new ProducerRecord<>(topicName, tweetJson.toString());
@@ -34,10 +36,12 @@ public class TKPListener implements IAPIEventListener {
         logger.debug(record.toString());
     }
 
+    /** Log UnknownDataStreamed error. */
     public void onUnknownDataStreamed(String s) {
         logger.error("UnknownDataStreamed: " + s);
     }
 
+    /** Close Kafka producer. */
     public void onStreamEnded(Exception e) {
         kafkaProducer.flush();
         kafkaProducer.close();
