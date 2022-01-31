@@ -1,4 +1,4 @@
-# twitter-kafka-producer-docker
+# twitter-kafka-producer
 
 Simple Kafka producer making Twitter Filtered Stream available in Kafka.
 
@@ -19,5 +19,6 @@ By default `TwitterKafkaProducer` connects to the `localhost:9092` and sends twe
 
 ## ToDo
 
-- Rules management
-- Producer properties management
+- Unittests
+- Documentation
+- Proper configuration management (rules)
