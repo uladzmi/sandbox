@@ -1,4 +1,4 @@
-import com.github.uladzmi.eskc.ESKafkaConsumer;
+import com.github.uladzmi.eskc.ElasticsearchKafkaConsumer;
 import com.github.uladzmi.eskc.EnvironmentConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.junit.jupiter.api.Test;
@@ -9,7 +9,7 @@ import static com.github.stefanbirkner.systemlambda.SystemLambda.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-public class ESKafakaConsumerTest {
+public class ElasticsearchKafkaConsumerTest {
 
         @Test
         public void testGetKafkaConsumerPropertiesEnvironmentOverwrite() throws Exception {
@@ -18,15 +18,15 @@ public class ESKafakaConsumerTest {
 
             Properties properties =
                     withEnvironmentVariable(EnvironmentConfig.BOOTSTRAP_SERVERS_ENV, bootstrapServers)
-                            .execute(ESKafkaConsumer::getKafkaConsumerProperties);
+                            .execute(ElasticsearchKafkaConsumer::getKafkaConsumerProperties);
             assertEquals(bootstrapServers, properties.getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
         }
 
     @Test
-    public void testGetKafkaConsumerPropertiesNoEnvironment() throws Exception {
+    public void testGetKafkaConsumerPropertiesNoEnvironment() {
 
         assertEquals("localhost:9092",
-                ESKafkaConsumer.getKafkaConsumerProperties().getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
+                ElasticsearchKafkaConsumer.getKafkaConsumerProperties().getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
     }
 
 }

@@ -23,24 +23,10 @@ import static com.github.uladzmi.eskc.DefaultConfig.*;
 import static com.github.uladzmi.eskc.EnvironmentConfig.*;
 
 
-public class ESKafkaConsumer {
+public class ElasticsearchKafkaConsumer {
 
     /**  Logger. */
-    public static final Logger logger = LoggerFactory.getLogger(ESKafkaConsumer.class);
-
-    /** Get Kafka consumer properties from resources and environment. */
-    public static Properties getKafkaConsumerProperties() {
-
-        String consumerProperties = "consumer.properties";
-        Properties properties = Utils.getPropertiesFromResourcePath(consumerProperties);
-
-        final String bootstrapServer = System.getenv()
-                .getOrDefault(BOOTSTRAP_SERVERS_ENV, properties.getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
-
-        properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
-        return properties;
-    }
-
+    public static final Logger logger = LoggerFactory.getLogger(ElasticsearchKafkaConsumer.class);
 
     /** App entry point. */
     public static void main(String[] args) throws IOException {
@@ -68,30 +54,57 @@ public class ESKafkaConsumer {
             int recordCount = records.count();
             logger.info("Received " + recordCount + " records ...");
 
-            // Initialize Elasticsearch bulk request
-            BulkRequest bulkRequest = new BulkRequest();
-
-            for (ConsumerRecord<String, String> record: records) {
-
-                // Ass unique IndexRequest id to make consumer idempotent
-                IndexRequest request = new IndexRequest(elasticsearchIndex, elasticsearchIndexType)
-                        .source(record.value(), XContentType.JSON)
-                        .id(record.topic() + "_" + record.partition() + "_" + record.offset());
-
-                bulkRequest.add(request);
+            if (recordCount == 0) {
+                continue;
             }
+
+            BulkRequest bulkRequest = createElasticsearchBulkRequest(
+                    records, elasticsearchIndex, elasticsearchIndexType);
 
             // Send batch to Elasticsearch and commit the offsets
-            if (recordCount > 0) {
-                elasticsearchClient.bulk(bulkRequest, RequestOptions.DEFAULT);
-                logger.info("Committing offsets...");
-                kafkaConsumer.commitSync();
-                logger.info("Offsets have been committed ... ");
-            }
+            elasticsearchClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+            logger.info("Committing offsets...");
+            kafkaConsumer.commitSync();
+
         }
 
 //         close the client gracefully
 //         elasticsearchClient.close();
 
+    }
+
+    /** Send Elasticsearch bulk request*/
+    public static BulkRequest createElasticsearchBulkRequest(ConsumerRecords<String, String> records,
+                                                    String elasticsearchIndex, String elasticsearchIndexType ) {
+
+        // Initialize Elasticsearch bulk request
+        BulkRequest bulkRequest = new BulkRequest();
+
+        for (ConsumerRecord<String, String> record: records) {
+
+            // Use unique IndexRequest id to make consumer idempotent.
+            // Better would be to use tweet id, but the combination below is sufficient as well.
+            IndexRequest request = new IndexRequest(elasticsearchIndex, elasticsearchIndexType)
+                    .source(record.value(), XContentType.JSON)
+                    .id(record.topic() + "_" + record.partition() + "_" + record.offset());
+
+            bulkRequest.add(request);
+        }
+
+        return bulkRequest;
+
+    }
+
+    /** Get Kafka consumer properties from resources and environment. */
+    public static Properties getKafkaConsumerProperties() {
+
+        String consumerProperties = "consumer.properties";
+        Properties properties = Utils.getPropertiesFromResourcePath(consumerProperties);
+
+        final String bootstrapServer = System.getenv()
+                .getOrDefault(BOOTSTRAP_SERVERS_ENV, properties.getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
+
+        properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
+        return properties;
     }
 }
