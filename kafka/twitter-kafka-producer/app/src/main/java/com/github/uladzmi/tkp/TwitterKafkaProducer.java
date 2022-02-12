@@ -16,19 +16,6 @@ public class TwitterKafkaProducer {
     /**  Logger. */
     final static Logger logger = LoggerFactory.getLogger(TwitterClient.class.getName());
 
-    /** Get Kafka producer properties from resources and environment. */
-    public static Properties getKafkaProducerProperties() {
-
-        String producerProperties = "producer.properties";
-        Properties properties = Utils.getPropertiesFromResourcePath(producerProperties);
-
-        final String bootstrapServer = System.getenv()
-                .getOrDefault(BOOTSTRAP_SERVERS_ENV, properties.getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
-
-        properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
-        return properties;
-    }
-
     public static void main(String[] args) {
 
         final String bearerToken = System.getenv(BEARER_TOKEN_ENV);
@@ -43,12 +30,26 @@ public class TwitterKafkaProducer {
             KafkaProducer<String, String> kafkaProducer = new KafkaProducer<>(getKafkaProducerProperties());
             String topicName = System.getenv().getOrDefault(TOPIC_NAME_ENV, "tweets");
 
-            twitterClient.startFilteredStream(new TKPListener(kafkaProducer, topicName));
+            twitterClient.startFilteredStream(new TwitterStreamKafkaHandler(kafkaProducer, topicName));
 
         } else {
             logger.error("Please make sure to set the {} environment variable", BEARER_TOKEN_ENV);
         }
 
     }
+
+    /** Get Kafka producer properties from resources and environment. */
+    public static Properties getKafkaProducerProperties() {
+
+        String producerProperties = "producer.properties";
+        Properties properties = Utils.getPropertiesFromResourcePath(producerProperties);
+
+        final String bootstrapServer = System.getenv()
+                .getOrDefault(BOOTSTRAP_SERVERS_ENV, properties.getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
+
+        properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
+        return properties;
+    }
+
 
 }

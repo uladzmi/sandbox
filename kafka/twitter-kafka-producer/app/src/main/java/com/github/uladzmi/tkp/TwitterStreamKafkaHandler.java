@@ -10,15 +10,15 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TKPListener implements IAPIEventListener {
+public class TwitterStreamKafkaHandler implements IAPIEventListener {
 
-    final Logger logger = LoggerFactory.getLogger(TKPListener.class.getName());
+    final Logger logger = LoggerFactory.getLogger(TwitterStreamKafkaHandler.class.getName());
 
     public final KafkaProducer<String, String> kafkaProducer;
     public final String topicName;
 
     /** Twitter Kafka Producer listener. */
-    public TKPListener(KafkaProducer<String, String> kafkaProducer, String topicName) {
+    public TwitterStreamKafkaHandler(KafkaProducer<String, String> kafkaProducer, String topicName) {
         this.kafkaProducer = kafkaProducer;
         this.topicName = topicName;
     }

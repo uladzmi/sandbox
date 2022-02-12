@@ -22,7 +22,7 @@ public class TwitterKafkaProducerTest {
     }
 
     @Test
-    public void testGetKafkaConsumerPropertiesNoEnvironment() throws Exception {
+    public void testGetKafkaConsumerPropertiesNoEnvironment() {
 
         assertEquals("localhost:9092",
                 TwitterKafkaProducer.getKafkaProducerProperties().getProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
